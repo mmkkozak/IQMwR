@@ -1,18 +1,21 @@
 package com.inzynierka;
 
-
 import ij.*;
 import ij.io.Opener;
 import ij.gui.GenericDialog;
 import ij.measure.ResultsTable;
 import ij.plugin.*;
-import ij.process.ImageProcessor;
-
+import ij.Macro;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.inzynierka.MAE.getMAE;
+import static com.inzynierka.PSNR.getPSNR;
+import static com.inzynierka.RMSE.getRMSE;
+import static com.inzynierka.SNR.getSNR;
+import static com.inzynierka.SSIM.getSSIM;
 
 public class ImageQualityMeasurementMarkers_Plugin implements PlugIn {
 
@@ -35,6 +38,9 @@ public class ImageQualityMeasurementMarkers_Plugin implements PlugIn {
 //        int imageNumber = WindowManager.getImageCount();
 
         String[] imageNames = new String[imageNumber];
+
+
+
 
         if (imageNumber < 2) {
             IJ.error("ERROR: Program work with two and more open image!");
@@ -61,60 +67,72 @@ public class ImageQualityMeasurementMarkers_Plugin implements PlugIn {
         gendialog.addCheckboxGroup(modeOptions.length / 2 + 1, 2, modeOptions, modeStates);
 
         gendialog.showDialog();
-//
+
         if (gendialog.wasOKed()) {
 
+            ArrayList<ImagePlus> testImages = new ArrayList<ImagePlus>(imageNumber);
+
             refImageIndex = gendialog.getNextChoiceIndex();
-            //...
+
+            for (int i = 0; i < imageNumber - 1; i++) {
+                int idx = gendialog.getNextChoiceIndex();
+//              testImages.add( WindowManager.getImage(idx + 1));
+                testImages.add(imageList.get(idx));
+            }
             for (int i = 0; i < modeStates.length; i++) {
                 modeStates[i] = gendialog.getNextBoolean();
             }
 
             //Search for mode that user clicked
             boolean calculateModes = false;
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 5; i++)
                 if (modeStates[i])
                     calculateModes = true;
             if (calculateModes == false)
                 return;
 
             //get iamges from ImageJ
-            ImagePlus refImage = imageList.get(0); //WindowManager.getImage(refImageIndex + 1);
+            ImagePlus refImage = imageList.get(refImageIndex); //WindowManager.getImage(refImageIndex + 1);
 //            ImagePlus testImage1 = imageList.get(1);//WindowManager.getImage(test1ImageIndex + 1);
-//            ImagePlus testImage2 = imageList.get(2);//WindowManager.getImage(test2ImageIndex + 1);
-//            ImagePlus testImage3 = imageList.get(3);//WindowManager.getImage(test3ImageIndex + 1);
-//            ImagePlus testImage4 = imageList.get(4);//WindowManager.getImage(test4ImageIndex + 1);
+//
 
             //Create results table
             ResultsTable resultTable = new ResultsTable();
             resultTable.incrementCounter();
             resultTable.setPrecision(6);
 
-
-            imageList.subList(1, imageNumber).stream().forEach(testImage -> {
-            if (modeStates[0]) //SSIM
-            {
+            //
+            testImages.stream().forEach(testImage -> {
+                resultTable.addValue("Testing Image", testImage.getTitle());
+                if (modeStates[0]) //SSIM
+                {
                     resultTable.addValue("SSIM", getSSIM(refImage, testImage));
-            }
-            if (modeStates[1]) //SSIM
-            {
-                    resultTable.addValue("SNR", getSSIM(refImage, testImage));
-            }
-            resultTable.addRow();
-        });
-            resultTable.deleteRow(imageNumber-1);
-            resultTable.show("Jebać kapusi smacznej kawusi");
+                }
+                if (modeStates[1]) //SNR
+                {
+                    resultTable.addValue("SNR [db]", getSNR(refImage, testImage));
+                }
+                if (modeStates[2]) //PSNR
+                {
+                    resultTable.addValue("PSNR [db]", getPSNR(refImage, testImage));
+                }
+                if (modeStates[3]) //RMSE
+                {
+                    resultTable.addValue("RMSE", getRMSE(refImage, testImage));
+                }
+                if (modeStates[4]) //MAE
+                {
+                    resultTable.addValue("MAE", getMAE(refImage, testImage));
+                }
+
+                resultTable.addRow();
+            });
+            resultTable.deleteRow(imageNumber - 1);
+            resultTable.show("Result");
         }
-    }
 
-    public static final double ssimCounter(
-            ImageProcessor refImage,
-            ImageProcessor testImage) {
-        return Math.random();
-    }
-
-    public static final double getSSIM(ImagePlus refImage, ImagePlus testImage) {
-        return ssimCounter(refImage.getProcessor(), testImage.getProcessor());
+        //Macro
+        String macro = Macro.getOptions();
     }
 
 }
