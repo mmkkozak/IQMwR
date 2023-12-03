@@ -5,5 +5,6 @@ public class Main {
         ImageQualityMeasurementMarkers_Plugin plugin = new ImageQualityMeasurementMarkers_Plugin();
 
         plugin.run("hello world");
+
     }
 }
