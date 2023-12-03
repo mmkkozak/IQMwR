@@ -1,5 +1,6 @@
 package com.inzynierka;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
@@ -9,30 +10,26 @@ public class MAE {
             ImageStack refImage,
             ImageStack testImage) {
 
-        int N = 0;
         double r, t, mae = 0.0;
+        int N = refImage.getWidth() * refImage.getHeight();
+        int bits_per_pixel_ref = refImage.getBitDepth();
+        int bits_per_pixel_test = testImage.getBitDepth();
 
-        for(int z=0; z < refImage.getSize(); z++ ) {
+        if (bits_per_pixel_ref != bits_per_pixel_test) {
+            IJ.error("ERROR: Images must have the same number of bits per pixel");
+        }
 
-            ImageProcessor lRef = refImage.getProcessor(z+1);
-            ImageProcessor lTest = testImage.getProcessor(z+1);
+        ImageProcessor lRef = refImage.getProcessor(1);
+        ImageProcessor lTest = testImage.getProcessor(1);
 
-            for (int y = 0; y < refImage.getWidth(); y++) {
-                for (int x = 0; x < refImage.getHeight(); x++) {
-                    r = lRef.getPixelValue(x, y);
-                    t = lTest.getPixelValue(x, y);
-
-                    if (!Double.isNaN(t) && !Double.isNaN(r)) {
-                        mae += Math.abs(r-t) ;
-                        N++;
-
-                    }
-                }
+        for (int y = 0; y < refImage.getWidth(); y++) {
+            for (int x = 0; x < refImage.getHeight(); x++) {
+                r = lRef.getPixel(y, x);
+                t = lTest.getPixel(y, x);
+                mae += Math.abs(r - t);
             }
         }
-        if (N > 0) {
-            mae /= N;
-        }
+        mae /= N;
 
         return mae;
     }
