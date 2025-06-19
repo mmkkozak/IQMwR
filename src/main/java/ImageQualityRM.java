@@ -26,6 +26,12 @@ public class ImageQualityRM implements Command {
     @Parameter
     private ImageDisplayService imageDisplayService;
 
+    @Parameter(label = "Reference Image")
+    private Dataset referenceImage;
+
+    @Parameter(label = "Test Image")
+    private Dataset testImage;
+
 //    int openImagesCount = 0;
 
     @Override
@@ -53,28 +59,28 @@ public class ImageQualityRM implements Command {
 //            openImagesCount = WindowManager.getImageCount();
 //            System.out.println(openImagesCount);
 //        }
-        while (getOpenDatasetCount() < 2) {
-            File file = uiService.chooseFile(null, "open");
-            if (file == null) {
-                uiService.showDialog("You need to open at least two images.", DialogPrompt.MessageType.ERROR_MESSAGE);
-                return;
-            }
-
-            Dataset dataset = null;
-            try {
-                dataset = ij.scifio().datasetIO().open(new FileLocation(file).getURI().toString());
-            } catch (IOException e) {
-                uiService.showDialog("Failed to open file:\n" + e.getMessage(), DialogPrompt.MessageType.ERROR_MESSAGE);
-                return;
-            }
-            uiService.show(dataset);
-
-        }
-
-    }
-
-    protected int getOpenDatasetCount () {
-        List<?> displays = imageDisplayService.getImageDisplays();
-        return displays.size();
+//        while (getOpenDatasetCount() < 2) {
+//            File file = uiService.chooseFile(null, "open");
+//            if (file == null) {
+//                uiService.showDialog("You need to open at least two images.", DialogPrompt.MessageType.ERROR_MESSAGE);
+//                return;
+//            }
+//
+//            Dataset dataset = null;
+//            try {
+//                dataset = ij.scifio().datasetIO().open(new FileLocation(file).getURI().toString());
+//            } catch (IOException e) {
+//                uiService.showDialog("Failed to open file:\n" + e.getMessage(), DialogPrompt.MessageType.ERROR_MESSAGE);
+//                return;
+//            }
+//            uiService.show(dataset);
+//
+//        }
+//
+//    }
+//
+//    protected int getOpenDatasetCount () {
+//        List<?> displays = imageDisplayService.getImageDisplays();
+//        return displays.size();
     }
 }
