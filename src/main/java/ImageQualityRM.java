@@ -4,7 +4,9 @@ import net.imagej.display.DatasetView;
 import net.imagej.display.ImageDisplay;
 import org.scijava.Initializable;
 import org.scijava.command.Command;
+import org.scijava.command.DynamicCommand;
 import org.scijava.display.Display;
+import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.io.location.FileLocation;
@@ -18,7 +20,7 @@ import java.util.*;
 import net.imagej.display.ImageDisplayService;
 
 @Plugin(type = Command.class, menuPath = "Plugins>Image Quality Measures with Reference")
-public class ImageQualityRM implements Command{
+public class ImageQualityRM extends DynamicCommand{
 
     @Parameter
     private ImageJ ij;
@@ -29,14 +31,11 @@ public class ImageQualityRM implements Command{
     @Parameter
     private ImageDisplayService imageDisplayService;
 
-    @Parameter(label="Reference Image", choices = {})
+    @Parameter(label="Reference Image", choices={})
     private String referenceImage;
 
-    @Parameter(label="Test Image", choices = {})
+    @Parameter(label="Test Image")
     private String testImage;
-
-    @Parameter(label="Image")
-    private String test;
 
 //    @Parameter(label = "Zastosuj metrykę PSNR")
 //    private boolean usePSNR;
@@ -49,11 +48,25 @@ public class ImageQualityRM implements Command{
 
     private boolean imagesOpenFlag = false;
 
-//    @Override
-//    public void initialize() {
-////
-////        List<ImageDisplay> openImages = imageDisplayService.getImageDisplays();
-//
+    @Override
+    public void initialize() {
+
+//        List<ImageDisplay> openImages = imageDisplayService.getImageDisplays();
+        HashMap<String, ImageDisplay> nameToDataset = new HashMap<>();
+        for (ImageDisplay d : imageDisplayService.getImageDisplays()) {
+            String name = d.getName();
+            if (!nameToDataset.containsKey(name)) {
+                nameToDataset.put(name, d);
+            }
+        }
+        List<String> names = new ArrayList<>(nameToDataset.keySet());
+
+        MutableModuleItem<String> refItem = getInfo().getMutableInput("referenceImage", String.class);
+        refItem.setChoices(names);
+
+        MutableModuleItem<String> testItem = getInfo().getMutableInput("testImage", String.class);
+        testItem.setChoices(names);
+
 //        if (imageDisplayService.getImageDisplays().size() < 2) {
 //            uiService.showDialog("Musisz mieć otwarte przynajmniej 2 obrazy.",
 //                    DialogPrompt.MessageType.ERROR_MESSAGE);
@@ -62,7 +75,7 @@ public class ImageQualityRM implements Command{
 ////            System.out.println(openImages);
 //            imagesOpenFlag = true;
 //        }
-//    }
+    }
 
     @Override
     public void run() {
