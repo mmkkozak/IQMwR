@@ -18,9 +18,9 @@ public class Main {
 
 
         //TODO
-        // check for open windows and count
-        // prompt to open images if count < 2
-        // exception - "cancel" opening files breaks the plugin execution
+        // check for open windows and count - done
+        // prompt to open images if count < 2 - done
+        // exception - "cancel" opening files breaks the plugin execution - done
         // prepare the plugin menu
         // get user's choice
         // prepare the result table
