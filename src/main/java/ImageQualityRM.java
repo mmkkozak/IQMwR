@@ -1,21 +1,24 @@
-import ij.IJ;
 import net.imagej.ImageJ;
 import net.imagej.Dataset;
+import net.imagej.display.DatasetView;
+import net.imagej.display.ImageDisplay;
 import org.scijava.command.Command;
+import org.scijava.command.DynamicCommand;
+import org.scijava.display.Display;
+import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import org.scijava.io.location.FileLocation;
 import org.scijava.ui.DialogPrompt;
 import org.scijava.ui.UIService;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 import net.imagej.display.ImageDisplayService;
 
-@Plugin(type = Command.class, menuPath = "Plugins>Image Quality Measures with Reference")
-public class ImageQualityRM implements Command {
+@Plugin(type = DynamicCommand.class, menuPath = "Plugins>Image Quality Measures with Reference")
+public class ImageQualityRM extends DynamicCommand{
 
     @Parameter
     private ImageJ ij;
@@ -26,61 +29,55 @@ public class ImageQualityRM implements Command {
     @Parameter
     private ImageDisplayService imageDisplayService;
 
-    @Parameter(label = "Reference Image")
-    private Dataset referenceImage;
+    @Parameter(label="Reference Image")
+    private String referenceImageName;
 
-    @Parameter(label = "Test Image")
-    private Dataset testImage;
+    @Parameter(label="Test Image")
+    private String testImageName;
 
-//    int openImagesCount = 0;
+    @Parameter(label = "Zastosuj metrykę PSNR")
+    private boolean usePSNR;
+  
+//    @Parameter(label = "Zastosuj metrykę SSIM")
+//    private boolean useSSIM;
+//
+//    @Parameter(label = "Zastosuj metrykę MSE")
+//    private boolean useMSE;
+
+    @Override
+    public void initialize() {
+
+        // handling duplicates on dropdown list coming from parameters referenceImageName, testImageName
+        HashMap<String, ImageDisplay> imagesNames = new HashMap<>();
+        for (ImageDisplay d : imageDisplayService.getImageDisplays()) {
+            String name = d.getName();
+            if (!imagesNames.containsKey(name)) {
+                imagesNames.put(name, d);
+            }
+        }
+        List<String> names = new ArrayList<>(imagesNames.keySet());
+        // assigning unique images names values to dropdown list
+        MutableModuleItem<String> refItem = getInfo().getMutableInput("referenceImageName", String.class);
+        refItem.setChoices(names);
+        MutableModuleItem<String> testItem = getInfo().getMutableInput("testImageName", String.class);
+        testItem.setChoices(names);
+
+    }
 
     @Override
     public void run() {
-//        openImagesCount = WindowManager.getImageCount();
-//        File file = null;
-//        ImagePlus image;
-//        Opener opener = new Opener();
-//
-//        while (openImagesCount < 2) {
-////            IJ.error("Hello world " + openImagesCount);
-//            try {
-//                file = uiService.chooseFile(null, "open");
-//                if (file == null) return;
-//                image = opener.openImage(file.getPath());
-//                if (image == null) {
-//                    IJ.error("ImageQualityRM error", "Failed to open image " + file.getPath());
-//                    continue;
-//                }
-//                uiService.show(image);
-//                System.out.println(openImagesCount);
-//            } catch(Exception ex) {
-//                IJ.error("ImageQualityRM error", ex.getMessage());
-//            }
-//            openImagesCount = WindowManager.getImageCount();
-//            System.out.println(openImagesCount);
-//        }
-//        while (getOpenDatasetCount() < 2) {
-//            File file = uiService.chooseFile(null, "open");
-//            if (file == null) {
-//                uiService.showDialog("You need to open at least two images.", DialogPrompt.MessageType.ERROR_MESSAGE);
-//                return;
-//            }
-//
-//            Dataset dataset = null;
-//            try {
-//                dataset = ij.scifio().datasetIO().open(new FileLocation(file).getURI().toString());
-//            } catch (IOException e) {
-//                uiService.showDialog("Failed to open file:\n" + e.getMessage(), DialogPrompt.MessageType.ERROR_MESSAGE);
-//                return;
-//            }
-//            uiService.show(dataset);
-//
-//        }
-//
-//    }
-//
-//    protected int getOpenDatasetCount () {
-//        List<?> displays = imageDisplayService.getImageDisplays();
-//        return displays.size();
+
+        if (referenceImageName.equals(testImageName)) {
+            uiService.showDialog("The same image was chosen as reference and test.", DialogPrompt.MessageType.WARNING_MESSAGE);
+        }
+        System.out.println("Reference image: " + referenceImageName);
+        System.out.println("Test image: " + testImageName);
+
+//        List<String> selectedMetrics = new ArrayList<>();
+//        if (usePSNR) selectedMetrics.add("PSNR");
+//        if (useSSIM) selectedMetrics.add("SSIM");
+//        if (useMSE) selectedMetrics.add("MSE");
+
+//        System.out.println("Wybrane metryki: " + selectedMetrics);
     }
 }
