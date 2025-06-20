@@ -37,7 +37,7 @@ public class ImageQualityRM extends DynamicCommand{
 
     @Parameter(label = "Zastosuj metrykę PSNR")
     private boolean usePSNR;
-//
+  
 //    @Parameter(label = "Zastosuj metrykę SSIM")
 //    private boolean useSSIM;
 //
