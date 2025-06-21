@@ -4,6 +4,8 @@ import net.imagej.Dataset;
 import net.imagej.display.DatasetView;
 import net.imagej.display.ImageDisplay;
 import net.imagej.display.ImageDisplayService;
+import net.imagej.table.DefaultResultsTable;
+import net.imagej.table.ResultsTable;
 import org.scijava.command.DynamicCommand;
 import org.scijava.display.Display;
 import org.scijava.module.ModuleItem;
@@ -120,8 +122,19 @@ public class ImageQualityRM extends DynamicCommand{
             return;
         }
 
-        System.out.println(selectedMetrics);
+        // preparing the result table
+        ResultsTable table = new DefaultResultsTable();
+        table.appendColumns("Measure value");
+        // populating the result table
+        for (String metric : selectedMetrics.keySet()) {
+            if (selectedMetrics.get(metric)) {
+                table.appendRow(metric);
+                table.set(0, table.getRowCount()-1, 1.0);
+            }
+        }
 
+        String tableName = "Results for: reference = '" + referenceImageName + "', test = '" + testImageName + "'";
+        uiService.show(tableName, table);
 
     }
 
