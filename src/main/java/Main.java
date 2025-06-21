@@ -18,7 +18,7 @@ public class Main {
         // exception - "cancel" opening files breaks the plugin execution - irrelevant
         // prepare the plugin menu - done
         // get user's choice - done
-        // prepare the result table
+        // prepare the result table - done
         // calculate the result
 
     }
