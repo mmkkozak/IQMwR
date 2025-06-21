@@ -6,6 +6,7 @@ import net.imagej.display.ImageDisplay;
 import net.imagej.display.ImageDisplayService;
 import org.scijava.command.DynamicCommand;
 import org.scijava.display.Display;
+import org.scijava.module.ModuleItem;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -32,17 +33,20 @@ public class ImageQualityRM extends DynamicCommand{
     private String testImageName;
 
     @Parameter(label = "SSIM")
-    private boolean useSSIM;
+    private Boolean useSSIM;
     @Parameter(label = "SNR")
-    private boolean useSNR;
+    private Boolean useSNR;
     @Parameter(label = "CNR")
-    private boolean useCNR;
+    private Boolean useCNR;
     @Parameter(label = "PSNR")
-    private boolean usePSNR;
+    private Boolean usePSNR;
     @Parameter(label = "RMSE")
-    private boolean useRMSE;
+    private Boolean useRMSE;
     @Parameter(label = "MAE")
-    private boolean useMAE;
+    private Boolean useMAE;
+
+    private List<MutableModuleItem<Boolean>> checkboxes = new ArrayList<>();
+    private Map<String, Boolean> selectedMetrics = new HashMap<>();
 
     @Override
     public void initialize() {
@@ -61,6 +65,16 @@ public class ImageQualityRM extends DynamicCommand{
         refItem.setChoices(names);
         MutableModuleItem<String> testItem = getInfo().getMutableInput("testImageName", String.class);
         testItem.setChoices(names);
+
+        // initializing selectedMetrics map with false values and preparing checkboxes list for checking values
+        for (ModuleItem<?> input : getInfo().inputs()) {
+            if (input.getType() == Boolean.class && input instanceof MutableModuleItem ) {
+                @SuppressWarnings("unchecked")
+                MutableModuleItem<Boolean> item = (MutableModuleItem<Boolean>) input;
+                checkboxes.add(item);
+                selectedMetrics.put(input.getLabel(), false);
+            }
+        }
 
     }
 
@@ -87,28 +101,27 @@ public class ImageQualityRM extends DynamicCommand{
         } else if (!Arrays.equals(refDataset.dimensionsAsLongArray(), testDataset.dimensionsAsLongArray())) {
             uiService.showDialog("Error: Images must be of the same size.", DialogPrompt.MessageType.ERROR_MESSAGE);
             return;
-        }
-        else if (!refDataset.getType().getClass().equals(testDataset.getType().getClass())) {
+        } else if (!refDataset.getType().getClass().equals(testDataset.getType().getClass())) {
             uiService.showDialog("Error: Images must be of the same bit depth.",
                     DialogPrompt.MessageType.ERROR_MESSAGE);
             return;
         }
 
-        ArrayList<String> selectedMetrics = new ArrayList<String>();
-        if (useSSIM) selectedMetrics.add("SSIM");
-        if (useSNR) selectedMetrics.add("SNR");
-        if (useCNR) selectedMetrics.add("CNR");
-        if (usePSNR) selectedMetrics.add("PSNR");
-        if (useRMSE) selectedMetrics.add("RMSE");
-        if (useMAE) selectedMetrics.add("MAE");
+        // retrieving checkboxes values to a dictionary
+        for (MutableModuleItem<Boolean> checkbox : checkboxes) {
+            if (checkbox.getValue(this)) {
+                selectedMetrics.put(checkbox.getLabel(), true);
+            }
+        }
 
         // ensuring a metric to calculate is chosen
-        if (selectedMetrics.isEmpty()) {
-            uiService.showDialog("No metric was chosen.", DialogPrompt.MessageType.WARNING_MESSAGE);
+        if (!selectedMetrics.containsValue(true)) {
+            uiService.showDialog("No metric was chosen - action canceled.", DialogPrompt.MessageType.WARNING_MESSAGE);
             return;
         }
 
         System.out.println(selectedMetrics);
+
 
     }
 
