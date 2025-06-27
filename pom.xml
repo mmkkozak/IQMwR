@@ -11,7 +11,7 @@
         <relativePath />
     </parent>
 
-    <groupId>net.</groupId>
+    <groupId>net.iqmwr_plugin</groupId>
     <artifactId>iqmwr</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
@@ -31,8 +31,8 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-<!--        <main-class>[MY-MAIN-CLASS-INCLUDING-PACKAGE]</main-class>-->
-<!--        <package-name>[MY-PACKAGE-PREFIX]</package-name>-->
+<!--        <main-class>iqmwr_plugin.ImageQualityRM</main-class>-->
+<!--        <package-name>iqmwr_plugin</package-name>-->
     </properties>
 
     <repositories>

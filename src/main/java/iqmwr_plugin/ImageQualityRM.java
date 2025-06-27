@@ -1,13 +1,14 @@
+package iqmwr_plugin;
+
 import net.imagej.DatasetService;
 import net.imagej.ImageJ;
 import net.imagej.Dataset;
-import net.imagej.display.DatasetView;
 import net.imagej.display.ImageDisplay;
 import net.imagej.display.ImageDisplayService;
+import net.imagej.ops.OpService;
 import net.imagej.table.DefaultResultsTable;
 import net.imagej.table.ResultsTable;
 import org.scijava.command.DynamicCommand;
-import org.scijava.display.Display;
 import org.scijava.module.ModuleItem;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
@@ -16,11 +17,15 @@ import org.scijava.ui.DialogPrompt;
 import org.scijava.ui.UIService;
 import java.util.*;
 
+//import static iqmwr_plugin.CNR;
+
 @Plugin(type = DynamicCommand.class, menuPath = "Plugins>Image Quality Measures with Reference")
 public class ImageQualityRM extends DynamicCommand{
 
     @Parameter
     private ImageJ ij;
+    @Parameter
+    private OpService opService;
 
     @Parameter
     private UIService uiService;
@@ -135,6 +140,8 @@ public class ImageQualityRM extends DynamicCommand{
 
         String tableName = "Results for: reference = '" + referenceImageName + "', test = '" + testImageName + "'";
         uiService.show(tableName, table);
+
+        CNR.cnrCounter(refDataset, testDataset, opService);
 
     }
 

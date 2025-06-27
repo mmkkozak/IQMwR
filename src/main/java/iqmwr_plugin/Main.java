@@ -1,3 +1,5 @@
+package iqmwr_plugin;
+
 import net.imagej.ImageJ;
 
 public class Main {

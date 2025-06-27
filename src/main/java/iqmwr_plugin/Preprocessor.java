@@ -1,3 +1,5 @@
+package iqmwr_plugin;
+
 import net.imagej.display.ImageDisplayService;
 import org.scijava.module.Module;
 import org.scijava.module.process.AbstractPreprocessorPlugin;
