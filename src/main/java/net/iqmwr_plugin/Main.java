@@ -1,4 +1,4 @@
-package iqmwr_plugin;
+package net.iqmwr_plugin;
 
 import net.imagej.ImageJ;
 

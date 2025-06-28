@@ -1,5 +1,6 @@
-package iqmwr_plugin;
+package net.iqmwr_plugin;
 
+import ij.ImagePlus;
 import net.imagej.DatasetService;
 import net.imagej.ImageJ;
 import net.imagej.Dataset;
@@ -9,6 +10,7 @@ import net.imagej.ops.OpService;
 import net.imagej.table.DefaultResultsTable;
 import net.imagej.table.ResultsTable;
 import org.scijava.command.DynamicCommand;
+import org.scijava.convert.ConvertService;
 import org.scijava.module.ModuleItem;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
@@ -54,6 +56,9 @@ public class ImageQualityRM extends DynamicCommand{
 
     private List<MutableModuleItem<Boolean>> checkboxes = new ArrayList<>();
     private Map<String, Boolean> selectedMetrics = new HashMap<>();
+
+    @Parameter
+    private ConvertService convertService;
 
     @Override
     public void initialize() {
@@ -141,7 +146,22 @@ public class ImageQualityRM extends DynamicCommand{
         String tableName = "Results for: reference = '" + referenceImageName + "', test = '" + testImageName + "'";
         uiService.show(tableName, table);
 
-        CNR.cnrCounter(refDataset, testDataset, opService);
+        System.out.println(CNR.cnrCounter(refDataset, testDataset, opService, datasetService));
+//        System.out.println(MAE.maeCounter(refDataset, testDataset, opService, datasetService));
+        System.out.println(SNR.snrCounter(refDataset, testDataset, opService, datasetService));
+//        ImagePlus imp1 = convertService.convert(refDataset.getImgPlus(), ImagePlus.class);
+//        ImagePlus imp2 = convertService.convert(testDataset.getImgPlus(), ImagePlus.class);
+//        if (imp1 == null || imp2 == null) {
+//            System.out.println("Błąd: konwersja Dataset -> ImagePlus zwróciła null");
+//            return;
+//        }
+//
+//        if (imp1.getStack() == null || imp2.getStack() == null) {
+//            System.out.println("Błąd: ImagePlus nie ma stacka!");
+//            return;
+//        }
+//        System.out.println(CNR_old.getCNR(imp1, imp2));
+
 
     }
 
