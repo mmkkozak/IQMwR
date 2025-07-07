@@ -53,6 +53,8 @@ public class ImageQualityRM extends DynamicCommand{
     private Boolean useRMSE;
     @Parameter(label = "MAE")
     private Boolean useMAE;
+    @Parameter(label = "MSE")
+    private Boolean useMSE;
 
     private List<MutableModuleItem<Boolean>> checkboxes = new ArrayList<>();
     private Map<String, Boolean> selectedMetrics = new HashMap<>();
@@ -139,7 +141,21 @@ public class ImageQualityRM extends DynamicCommand{
         for (String metric : selectedMetrics.keySet()) {
             if (selectedMetrics.get(metric)) {
                 table.appendRow(metric);
-                table.set(0, table.getRowCount()-1, 1.0);
+                double val;
+                switch (metric) {
+                    case "MAE":
+                        val = Statistics.mae(refDataset, testDataset, opService, datasetService);
+                        break;
+                    case "MSE":
+                        val = Statistics.mse(refDataset, testDataset, opService, datasetService);
+                        break;
+                    case "RMSE":
+                        val = Statistics.rmse(refDataset, testDataset, opService, datasetService);
+                        break;
+                    default:
+                        val = 0;
+                }
+                table.set(0, table.getRowCount()-1, val);
             }
         }
 

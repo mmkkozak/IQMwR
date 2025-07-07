@@ -14,6 +14,8 @@ import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.view.Views;
 
+import static net.iqmwr_plugin.Statistics.squaredSum;
+
 public class SNR {
 
     public static double snrCounter(
@@ -35,28 +37,28 @@ public class SNR {
         return 10.0 * Math.log10(snr);
     }
 
-    private static Dataset absoluteValue(Dataset img1, Dataset img2, DatasetService datasetService) {
-        // method to calculate absolute value of Dataset (image) difference
-        final Img<? extends RealType<?>> img1Data = img1.getImgPlus();
-        final Img<? extends RealType<?>> img2Data = img2.getImgPlus();
-
-        ImgFactory<DoubleType> factory = new ArrayImgFactory<>(new DoubleType());
-        Img<DoubleType> result = factory.create(img1Data);
-
-        // cursors allow pixel by pixel operations - retrieving and saving values
-        Cursor<? extends RealType<?>> cursor1 = img1Data.cursor();
-        Cursor<? extends RealType<?>> cursor2 = img2Data.cursor();
-        Cursor<DoubleType> cursorOut = result.cursor();
-
-        while (cursor1.hasNext()) {
-            double v1 = cursor1.next().getRealDouble();
-            double v2 = cursor2.next().getRealDouble();
-            cursorOut.next().setReal(Math.abs(v1 - v2));
-        }
-
-        // the result is returned as a Dataset type for further operations
-        return datasetService.create(result);
-    }
+//    private static Dataset absoluteValue(Dataset img1, Dataset img2, DatasetService datasetService) {
+//        // method to calculate absolute value of Dataset (image) difference
+//        final Img<? extends RealType<?>> img1Data = img1.getImgPlus();
+//        final Img<? extends RealType<?>> img2Data = img2.getImgPlus();
+//
+//        ImgFactory<DoubleType> factory = new ArrayImgFactory<>(new DoubleType());
+//        Img<DoubleType> result = factory.create(img1Data);
+//
+//        // cursors allow pixel by pixel operations - retrieving and saving values
+//        Cursor<? extends RealType<?>> cursor1 = img1Data.cursor();
+//        Cursor<? extends RealType<?>> cursor2 = img2Data.cursor();
+//        Cursor<DoubleType> cursorOut = result.cursor();
+//
+//        while (cursor1.hasNext()) {
+//            double v1 = cursor1.next().getRealDouble();
+//            double v2 = cursor2.next().getRealDouble();
+//            cursorOut.next().setReal(Math.abs(v1 - v2));
+//        }
+//
+//        // the result is returned as a Dataset type for further operations
+//        return datasetService.create(result);
+//    }
 
 //    private static double stdValue(Dataset img1, double mean) {
 //        final Img<? extends RealType<?>> img1Data = img1.getImgPlus();
@@ -70,17 +72,17 @@ public class SNR {
 //        return std;
 //    }
 
-    public static double squaredSum(Dataset input) {
-        Img<? extends RealType<?>> inImg = input.getImgPlus();
-        Cursor<? extends RealType<?>> inCursor = inImg.cursor();
-        double sum = 0.0;
-
-        while (inCursor.hasNext()) {
-            double value = inCursor.next().getRealDouble();
-            sum += Math.pow(value, 2);
-        }
-
-        return sum;
-    }
+//    public static double squaredSum(Dataset input) {
+//        Img<? extends RealType<?>> inImg = input.getImgPlus();
+//        Cursor<? extends RealType<?>> inCursor = inImg.cursor();
+//        double sum = 0.0;
+//
+//        while (inCursor.hasNext()) {
+//            double value = inCursor.next().getRealDouble();
+//            sum += Math.pow(value, 2);
+//        }
+//
+//        return sum;
+//    }
 
 }

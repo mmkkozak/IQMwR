@@ -13,6 +13,8 @@ import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
+import static net.iqmwr_plugin.Statistics.absoluteValue;
+
 public class CNR {
 
     public static double cnrCounter(
@@ -65,26 +67,26 @@ public class CNR {
 //    public static final double getCNR(ImagePlus refImage, ImagePlus testImage) {
 //        return cnrCounter(refImage.getStack(), testImage.getStack());
 //    }
-private static Dataset absoluteValue(Dataset img1, Dataset img2, DatasetService datasetService) {
-    final Img<? extends RealType<?>> img1Data = img1.getImgPlus();
-    final Img<? extends RealType<?>> img2Data = img2.getImgPlus();
-
-    // Tworzymy wynik (typu float, ale można zmienić)
-    ImgFactory<DoubleType> factory = new ArrayImgFactory<>(new DoubleType());
-    Img<DoubleType> result = factory.create(img1Data);
-
-    Cursor<? extends RealType<?>> cursor1 = img1Data.cursor();
-    Cursor<? extends RealType<?>> cursor2 = img2Data.cursor();
-    Cursor<DoubleType> cursorOut = result.cursor();
-
-    while (cursor1.hasNext()) {
-        double v1 = cursor1.next().getRealDouble();
-        double v2 = cursor2.next().getRealDouble();
-        cursorOut.next().setReal(Math.abs(v1 - v2));
-    }
-
-    // Zwracamy jako Dataset
-    return datasetService.create(result);
-}
+//private static Dataset absoluteValue(Dataset img1, Dataset img2, DatasetService datasetService) {
+//    final Img<? extends RealType<?>> img1Data = img1.getImgPlus();
+//    final Img<? extends RealType<?>> img2Data = img2.getImgPlus();
+//
+//    // Tworzymy wynik (typu float, ale można zmienić)
+//    ImgFactory<DoubleType> factory = new ArrayImgFactory<>(new DoubleType());
+//    Img<DoubleType> result = factory.create(img1Data);
+//
+//    Cursor<? extends RealType<?>> cursor1 = img1Data.cursor();
+//    Cursor<? extends RealType<?>> cursor2 = img2Data.cursor();
+//    Cursor<DoubleType> cursorOut = result.cursor();
+//
+//    while (cursor1.hasNext()) {
+//        double v1 = cursor1.next().getRealDouble();
+//        double v2 = cursor2.next().getRealDouble();
+//        cursorOut.next().setReal(Math.abs(v1 - v2));
+//    }
+//
+//    // Zwracamy jako Dataset
+//    return datasetService.create(result);
+//}
 
 }
