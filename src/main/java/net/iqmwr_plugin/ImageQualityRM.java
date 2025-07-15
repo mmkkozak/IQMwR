@@ -164,6 +164,16 @@ public class ImageQualityRM extends DynamicCommand{
                     case "SNR2":
                         val = SNR.snr2(refDataset, testDataset, opService, datasetService);
                         break;
+                        //TODO check why CNRs turn is reversed in the table
+                    case "CNR1":
+                        val = CNR.cnr1(refDataset, testDataset, opService, datasetService);
+                        break;
+                    case "CNR2":
+                        val = CNR.cnr2(refDataset, testDataset, opService, datasetService);
+                        break;
+                    case "CNR3":
+                        val = CNR.cnr3(refDataset, testDataset, opService, datasetService);
+                        break;
                     default:
                         val = 0;
                 }
@@ -174,7 +184,6 @@ public class ImageQualityRM extends DynamicCommand{
         String tableName = "Results for: reference = '" + referenceImageName + "', test = '" + testImageName + "'";
         uiService.show(tableName, table);
 
-        System.out.println(CNR.cnrCounter(refDataset, testDataset, opService, datasetService));
 //        ImagePlus imp1 = convertService.convert(refDataset.getImgPlus(), ImagePlus.class);
 //        ImagePlus imp2 = convertService.convert(testDataset.getImgPlus(), ImagePlus.class);
 //        if (imp1 == null || imp2 == null) {
