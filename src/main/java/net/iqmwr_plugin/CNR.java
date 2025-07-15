@@ -13,17 +13,15 @@ import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
-import static net.iqmwr_plugin.Statistics.absoluteValue;
-
 public class CNR {
 
     public static double cnrCounter(
             Dataset refImage, Dataset testImage, OpService opService, DatasetService datasetService) {
 
 //        RandomAccessibleInterval<?> noise = (RandomAccessibleInterval<?>) opService.run("math.subtract", refImage, testImage);
-        Dataset abs_noise = absoluteValue(refImage, testImage, datasetService);
+        Dataset abs_noise = Helpers.absoluteValue(refImage, testImage, datasetService);
 
-        System.out.println(refImage.size());
+//        System.out.println(refImage.size());
         double mean_signal = ((DoubleType) opService.run("mean", refImage)).getRealDouble();
         double mean_noise = ((DoubleType)  opService.run("mean", abs_noise)).getRealDouble();
         double std_noise = ((DoubleType)  opService.run("stdDev", abs_noise)).getRealDouble();

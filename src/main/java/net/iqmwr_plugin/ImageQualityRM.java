@@ -43,10 +43,16 @@ public class ImageQualityRM extends DynamicCommand{
 
     @Parameter(label = "SSIM")
     private Boolean useSSIM;
-    @Parameter(label = "SNR")
-    private Boolean useSNR;
-    @Parameter(label = "CNR")
-    private Boolean useCNR;
+    @Parameter(label = "SNR1")
+    private Boolean useSNR1;
+    @Parameter(label = "SNR2")
+    private Boolean useSNR2;
+    @Parameter(label = "CNR1")
+    private Boolean useCNR1;
+    @Parameter(label = "CNR2")
+    private Boolean useCNR2;
+    @Parameter(label = "CNR3")
+    private Boolean useCNR3;
     @Parameter(label = "PSNR")
     private Boolean usePSNR;
     @Parameter(label = "RMSE")
@@ -147,10 +153,16 @@ public class ImageQualityRM extends DynamicCommand{
                         val = Statistics.mae(refDataset, testDataset, opService, datasetService);
                         break;
                     case "MSE":
-                        val = Statistics.mse(refDataset, testDataset, opService, datasetService);
+                        val = Statistics.mse(refDataset, testDataset);
                         break;
                     case "RMSE":
-                        val = Statistics.rmse(refDataset, testDataset, opService, datasetService);
+                        val = Statistics.rmse(refDataset, testDataset);
+                        break;
+                    case "SNR1":
+                        val = SNR.snr1(refDataset, testDataset, opService, datasetService);
+                        break;
+                    case "SNR2":
+                        val = SNR.snr2(refDataset, testDataset, opService, datasetService);
                         break;
                     default:
                         val = 0;
@@ -163,8 +175,6 @@ public class ImageQualityRM extends DynamicCommand{
         uiService.show(tableName, table);
 
         System.out.println(CNR.cnrCounter(refDataset, testDataset, opService, datasetService));
-//        System.out.println(MAE.maeCounter(refDataset, testDataset, opService, datasetService));
-        System.out.println(SNR.snrCounter(refDataset, testDataset, opService, datasetService));
 //        ImagePlus imp1 = convertService.convert(refDataset.getImgPlus(), ImagePlus.class);
 //        ImagePlus imp2 = convertService.convert(testDataset.getImgPlus(), ImagePlus.class);
 //        if (imp1 == null || imp2 == null) {
