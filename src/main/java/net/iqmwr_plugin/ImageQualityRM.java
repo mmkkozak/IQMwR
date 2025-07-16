@@ -174,6 +174,9 @@ public class ImageQualityRM extends DynamicCommand{
                     case "CNR3":
                         val = CNR.cnr3(refDataset, testDataset, opService, datasetService);
                         break;
+                    case "PSNR":
+                        val = PSNR.psnr(refDataset, testDataset);
+                        break;
                     default:
                         val = 0;
                 }
