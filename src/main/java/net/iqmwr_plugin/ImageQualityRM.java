@@ -19,8 +19,6 @@ import org.scijava.ui.DialogPrompt;
 import org.scijava.ui.UIService;
 import java.util.*;
 
-//import static iqmwr_plugin.CNR;
-
 @Plugin(type = DynamicCommand.class, menuPath = "Plugins>Image Quality Measures with Reference")
 public class ImageQualityRM extends DynamicCommand{
 
@@ -176,6 +174,9 @@ public class ImageQualityRM extends DynamicCommand{
                         break;
                     case "PSNR":
                         val = PSNR.psnr(refDataset, testDataset);
+                        break;
+                    case "SSIM":
+                        val = SSIM.ssim(refDataset, testDataset, opService);
                         break;
                     default:
                         val = 0;
