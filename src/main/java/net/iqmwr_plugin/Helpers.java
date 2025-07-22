@@ -95,4 +95,28 @@ public class Helpers {
         }
         return std / (img1.size() - 1);
     }
+
+    static double[][] generateGaussianKernel(int size, double sigma) {
+        double[][] kernel = new double[size][size];
+        int ctr = size / 2; // size of the kernel should be an odd number
+        double sum = 0.0;
+
+        for (int y = -ctr; y <= ctr; y++) {
+            for (int x = -ctr; x <= ctr; x++) {
+                double exp = Math.exp(-(x * x + y * y) / (2 * sigma * sigma));
+                kernel[y + ctr][x + ctr] = exp;
+                sum += exp;
+            }
+        }
+
+        // normalizing to unit sum
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                kernel[y][x] /= sum;
+            }
+        }
+
+        return kernel;
+    }
+
 }
