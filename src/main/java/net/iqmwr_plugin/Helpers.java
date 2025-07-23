@@ -85,15 +85,15 @@ public class Helpers {
         return datasetService.create(result);
     }
 
-    static double stdValue(Dataset img1, double mean) {
+    static double varianceValue(Dataset img1, double mean) {
         final Img<? extends RealType<?>> img1Data = img1.getImgPlus();
-        double std = 0.0;
+        double variance = 0.0;
         Cursor<? extends RealType<?>> cursor1 = img1Data.cursor();
 
         while (cursor1.hasNext()) {
-            std += Math.pow((cursor1.next().getRealDouble() - mean), 2);
+            variance += Math.pow((cursor1.next().getRealDouble() - mean), 2);
         }
-        return std / (img1.size() - 1);
+        return variance / (img1.size() - 1);
     }
 
     static double[][] generateGaussianKernel(int size, double sigma) {

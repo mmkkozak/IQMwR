@@ -17,15 +17,15 @@ public class SSIM {
         double mean_signal = ((DoubleType) opService.run("mean", refImage)).getRealDouble();
         double mean_test = ((DoubleType) opService.run("mean", testImage)).getRealDouble();
         double sigma_st = corr_coeff(refImage, testImage, mean_signal, mean_test);
-        double std_signal = Helpers.stdValue(refImage, mean_signal);
-        double std_test = Helpers.stdValue(testImage, mean_test);
+        double sigma_signal = Helpers.varianceValue(refImage, mean_signal);
+        double sigma_test = Helpers.varianceValue(testImage, mean_test);
         RealType<?> type = refImage.firstElement();
         L = type.getMaxValue();
         C1 = Math.pow((L*K1), 2);
         C2 = Math.pow((L*K2), 2);
 
         return (2*mean_signal*mean_test + C1) * (2*sigma_st + C2) /
-                ((Math.pow(mean_signal, 2) + Math.pow(mean_test, 2) + C1) * (Math.pow(std_signal, 2) + Math.pow(std_test, 2) + C2));
+                ((Math.pow(mean_signal, 2) + Math.pow(mean_test, 2) + C1) * (sigma_signal + sigma_test + C2));
     }
 
     private static double corr_coeff(Dataset img1, Dataset img2, double mean1, double mean2) {
