@@ -3,7 +3,6 @@ package net.iqmwr_plugin;
 import net.imagej.Dataset;
 import net.imagej.DatasetService;
 import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
@@ -25,7 +24,7 @@ public class Helpers {
         Cursor<FloatType> outCursor = floatImg.cursor();
 
         while (inCursor.hasNext() && outCursor.hasNext()) {
-            double val = inCursor.next().getRealDouble(); // działa na każdym typie numerycznym
+            double val = inCursor.next().getRealDouble();
             outCursor.next().setReal(val);
         }
 

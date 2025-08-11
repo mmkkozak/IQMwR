@@ -24,8 +24,8 @@ public class FSIM {
         Img<FloatType> pcRef = computePhaseCongruency(reference, opService);
         Img<FloatType> pcTest = computePhaseCongruency(test, opService);
 
-        final double T1 = 0.85, T2 = 0.01;
-//        final double T1 = 0.85, T2 = 160;
+        final double T1 = 0.85;
+        final double T2 = scaleT2(gmRef, gmTest, 0.01);
         Cursor<FloatType> cg1 = gmRef.cursor();
         Cursor<FloatType> cg2 = gmTest.cursor();
         Cursor<FloatType> cpc1 = pcRef.cursor();
@@ -52,34 +52,21 @@ public class FSIM {
         return denominator > 0 ? numerator / denominator : 0.0;
     }
 
-    public static double fsim_g(Dataset refImage, Dataset testImage, OpService opService) {
-        //simplified version of FSIM, using only gradient magnitude (GM)
-        Img<FloatType> reference = Helpers.toFloatImg(refImage);
-        Img<FloatType> test = Helpers.toFloatImg(testImage);
+    public static double scaleT2(Img<FloatType> gmRef, Img<FloatType> gmTest, double scaleFactor) {
+        double maxGrad = 0.0;
 
-        Img<FloatType> gmRef = (Img<FloatType>) opService.filter().sobel(reference);
-        Img<FloatType> gmTest = (Img<FloatType>) opService.filter().sobel(test);
-
-        final double T2 = 0.01;
         Cursor<FloatType> c1 = gmRef.cursor();
         Cursor<FloatType> c2 = gmTest.cursor();
 
-        double numerator = 0.0;
-        double denominator = 0.0;
-
-        while (c1.hasNext() && c2.hasNext()) {
+        while (c1.hasNext()) {
             double g1 = c1.next().getRealDouble();
             double g2 = c2.next().getRealDouble();
-
-            double similarity = (2 * g1 * g2 + T2) / (g1 * g1 + g2 * g2 + T2);
-            double weight = Math.max(g1, g2);
-
-            numerator += similarity * weight;
-            denominator += weight;
+            maxGrad = Math.max(maxGrad, Math.max(g1, g2));
         }
 
-        return denominator > 0 ? numerator / denominator : 0.0;
+        return scaleFactor * maxGrad;
     }
+
 
     private static List<Img<ComplexFloatType>> createLogGaborFilters(final long[] dims) {
         final int numScales = 4;
@@ -89,13 +76,13 @@ public class FSIM {
         int M = (int) dims[0], N = (int) dims[1];
         double[] u1 = new double[M], u2 = new double[N];
 
-        // wektor częstotliwości normalizowanych w każdym wymiarze
+        // normalised frequencies
         for (int i = 0; i < M; i++)
             u1[i] = (i < M / 2 ? i : i - M) / (double) M;
         for (int j = 0; j < N; j++)
             u2[j] = (j < N / 2 ? j : j - N) / (double) N;
 
-        // generacja długości fali dla skal
+        // wavelengths for chosen scales
         double[] wavelength = new double[numScales];
         wavelength[0] = minWavelength;
         for (int s = 1; s < numScales; s++)
@@ -104,7 +91,6 @@ public class FSIM {
         List<Img<ComplexFloatType>> filters = new ArrayList<>();
         for (int s = 0; s < numScales; s++) {
             double fo = 1.0 / wavelength[s];
-//            Img<ComplexFloatType> filter = ops.create().img(dims, new ComplexFloatType());
             Img<ComplexFloatType> filter = ArrayImgs.complexFloats(dims);
             Cursor<ComplexFloatType> c = filter.cursor();
 
@@ -150,11 +136,15 @@ public class FSIM {
             Cursor<FloatType> pcCursor = phaseCongruency.cursor();
             Cursor<FloatType> spatialCursor = spatial.cursor();
             while (pcCursor.hasNext()) {
-                pcCursor.next().add(spatialCursor.next());
+                FloatType pcVal = pcCursor.next();
+                FloatType spatialVal = spatialCursor.next();
+                float current = spatialVal.getRealFloat();
+                pcVal.setReal(Math.max(pcVal.getRealFloat(), current));
             }
+
         }
 
-        // normalization
+        // normalisation
         double maxVal = ops.stats().max(phaseCongruency).getRealDouble();
         if (maxVal > 1) {
             for (FloatType p : phaseCongruency) {
