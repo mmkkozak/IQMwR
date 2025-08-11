@@ -3,13 +3,34 @@ package net.iqmwr_plugin;
 import net.imagej.Dataset;
 import net.imagej.DatasetService;
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.type.numeric.real.FloatType;
 
 public class Helpers {
+
+    public static Img<FloatType> toFloatImg(Dataset dataset) {
+        final Img<? extends RealType<?>> input = dataset.getImgPlus();
+
+        long[] dims = new long[input.numDimensions()];
+        input.dimensions(dims);
+
+        Img<FloatType> floatImg = new ArrayImgFactory<>(new FloatType()).create(dims);
+
+        Cursor<? extends RealType<?>> inCursor = input.cursor();
+        Cursor<FloatType> outCursor = floatImg.cursor();
+
+        while (inCursor.hasNext() && outCursor.hasNext()) {
+            double val = inCursor.next().getRealDouble(); // działa na każdym typie numerycznym
+            outCursor.next().setReal(val);
+        }
+
+        return floatImg;
+    }
 
     static Dataset absoluteValue(Dataset img1, Dataset img2, DatasetService datasetService) {
         // method to calculate absolute value of Dataset (image) difference
