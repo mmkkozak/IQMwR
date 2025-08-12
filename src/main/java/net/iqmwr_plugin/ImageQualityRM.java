@@ -45,6 +45,8 @@ public class ImageQualityRM extends DynamicCommand{
     private Boolean useFSIM;
     @Parameter(label = "MSSIM")
     private Boolean useMSSIM;
+    @Parameter(label = "MS-SSIM")
+    private Boolean useMS_SSIM;
     @Parameter(label = "SNR1")
     private Boolean useSNR1;
     @Parameter(label = "SNR2")
@@ -184,6 +186,9 @@ public class ImageQualityRM extends DynamicCommand{
                         break;
                     case "MSSIM":
                         val = SSIM.mssim(refDataset, testDataset);
+                        break;
+                    case "MS-SSIM":
+                        val = SSIM.multiscale_ssim(refDataset, testDataset, opService, datasetService);
                         break;
                     case "FSIM":
                         val = FSIM.fsim(refDataset, testDataset, opService);
