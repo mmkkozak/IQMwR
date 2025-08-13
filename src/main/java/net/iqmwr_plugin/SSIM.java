@@ -7,7 +7,6 @@ import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
-import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
@@ -163,93 +162,48 @@ public class SSIM {
         for (int level = 0; level < numScales; level++) {
             long width = ref.dimension(0);
             long height = ref.dimension(1);
-//            double local_ssim = 0.0;
-//
-//            for (int y = 0; y < height; y++) {
-//                for (int x = 0; x < width; x++) {
-//                    double[] components = ssimComponents(ref, test, window, x, y);
-////                    if (Double.isNaN(components[0]) || Double.isNaN(components[1]) || Double.isNaN(components[2])) {
-////                        System.out.println("NaN at (" + x + "," + y + "): " + Arrays.toString(components));
-////                    }
-////                    if ((components[0] == 0 || components[1] == 0 || components[2] == 0)) {
-////                        System.out.println("0 at (" + x + "," + y + "): " + Arrays.toString(components));
-////                    }
-//                    if (level < numScales - 1) {
-//                        // scales 1 to M-1
-//                        local_ssim += Math.pow(components[1] * components[2], scale_weights[level]);
-//                        msssim *= Math.pow(components[1] * components[2], scale_weights[level]);
-//                    } else {
-//                        // scale M
-//                        msssim *= Math.pow(components[0] * components[1] * components[2], scale_weights[level]);
-//                    }
-////                    if (Double.isNaN(msssim)) {
-////                        System.out.println("msssim NaN at (" + x + "," + y + "): " + Arrays.toString(components));
-////                    }
-//                }
-//            }
-            double sum_l = 0, sum_c = 0, sum_s = 0;
-            int count = 0;
+            double summedLocalSSIMs = 0.0;
 
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     double[] components = ssimComponents(ref, test, window, x, y);
-                    sum_l += components[0];
-                    sum_c += components[1];
-                    sum_s += components[2];
-                    count++;
+                    if (level < numScales - 1) {
+                        summedLocalSSIMs += Math.pow(components[1] * components[2], scale_weights[level]);
+                    } else {
+                        summedLocalSSIMs += Math.pow(components[0] * components[1] * components[2], scale_weights[level]);
+                    }
                 }
             }
 
-            double mean_l = sum_l / count;
-            double mean_c = sum_c / count;
-            double mean_s = sum_s / count;
-
-            if (level < numScales - 1) {
-                msssim *= Math.pow(mean_c * mean_s, scale_weights[level]);
-            } else {
-                msssim *= Math.pow(mean_l * mean_c * mean_s, scale_weights[level]);
-            }
-
-
+            msssim *= summedLocalSSIMs / (width * height);
             if (level < numScales - 1) {
                 ref = downsample(gaussianBlur(ref, opService, datasetService), datasetService);
                 test = downsample(gaussianBlur(test, opService, datasetService), datasetService);
             }
-//            System.out.println(level);
-//            System.out.printf("Level %d: MSSSIM = %f%n", level, msssim);
         }
+
         return msssim;
     }
 
     private static Dataset gaussianBlur(Dataset input, OpService ops, DatasetService datasetService) {
-        if (input.dimension(0) <= 1 || input.dimension(1) <= 1) {
-            return input;
-        }
-//        ImgFactory<DoubleType> factory = new ArrayImgFactory<>(new DoubleType());
-//        Img<DoubleType> result = factory.create(input);
-//        ops.run("filter.gauss", result, input, 1.5);
-        @SuppressWarnings("unchecked")
-        RandomAccessibleInterval<DoubleType> inputImg =
-                (RandomAccessibleInterval<DoubleType>) input.getImgPlus();
+        if (input.dimension(0) <= 1 || input.dimension(1) <= 1) return input;
 
         @SuppressWarnings("unchecked")
-//        RandomAccessibleInterval<RealType<?>> result = (RandomAccessibleInterval<RealType<?>>) ops.run("filter.gauss", input, 1.5);
+        RandomAccessibleInterval<DoubleType> inputImg = (RandomAccessibleInterval<DoubleType>) input.getImgPlus();
+        @SuppressWarnings("unchecked")
         RandomAccessibleInterval<DoubleType> result =
                 (RandomAccessibleInterval<DoubleType>) ops.run("filter.gauss", inputImg, 1.5);
+
         return datasetService.create(result);
     }
 
     private static Dataset downsample(Dataset input, DatasetService datasetService) {
-        if (input.dimension(0) <= 2 || input.dimension(1) <= 2) {
-            return input;
-        }
+        if (input.dimension(0) <= 2 || input.dimension(1) <= 2) return input;
 
         long newWidth = input.dimension(0) / 2;
         long newHeight = input.dimension(1) / 2;
 
-        if (newWidth < 1 || newHeight < 1) {
-            return input;
-        }
+        if (newWidth < 1 || newHeight < 1) return input;
 
         Img<? extends RealType<?>> inImg = input.getImgPlus();
         Img<FloatType> outImg = new ArrayImgFactory<>(new FloatType()).create(newWidth, newHeight);
@@ -261,6 +215,7 @@ public class SSIM {
             inCur.fwd();
             long x = inCur.getLongPosition(0);
             long y = inCur.getLongPosition(1);
+
             if (x % 2 == 0 && y % 2 == 0) {
                 long outX = x / 2;
                 long outY = y / 2;
@@ -273,6 +228,5 @@ public class SSIM {
 
         return datasetService.create(outImg);
     }
-
 
 }
