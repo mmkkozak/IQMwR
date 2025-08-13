@@ -117,8 +117,9 @@ public class Helpers {
     }
 
     static double[][] generateGaussianKernel(int size, double sigma) {
+        if(size%2 == 0) size++; // size of the kernel should be an odd number
         double[][] kernel = new double[size][size];
-        int ctr = size / 2; // size of the kernel should be an odd number
+        int ctr = size / 2;
         double sum = 0.0;
 
         for (int y = -ctr; y <= ctr; y++) {

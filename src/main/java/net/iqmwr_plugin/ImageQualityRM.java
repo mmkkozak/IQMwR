@@ -45,6 +45,8 @@ public class ImageQualityRM extends DynamicCommand{
     private Boolean useFSIM;
     @Parameter(label = "MSSIM")
     private Boolean useMSSIM;
+    @Parameter(label = "UIQI")
+    private Boolean useUIQI;
     @Parameter(label = "MS-SSIM")
     private Boolean useMS_SSIM;
     @Parameter(label = "SNR1")
@@ -66,8 +68,8 @@ public class ImageQualityRM extends DynamicCommand{
     @Parameter(label = "MSE")
     private Boolean useMSE;
 
-    private List<MutableModuleItem<Boolean>> checkboxes = new ArrayList<>();
-    private Map<String, Boolean> selectedMetrics = new HashMap<>();
+    final private List<MutableModuleItem<Boolean>> checkboxes = new ArrayList<>();
+    final private Map<String, Boolean> selectedMetrics = new HashMap<>();
 
     @Parameter
     private ConvertService convertService;
@@ -186,6 +188,9 @@ public class ImageQualityRM extends DynamicCommand{
                         break;
                     case "MSSIM":
                         val = SSIM.mssim(refDataset, testDataset);
+                        break;
+                    case "UIQI":
+                        val = SSIM.q_index(refDataset, testDataset);
                         break;
                     case "MS-SSIM":
                         val = SSIM.multiscale_ssim(refDataset, testDataset, opService, datasetService);

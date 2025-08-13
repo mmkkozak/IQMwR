@@ -17,7 +17,7 @@ import java.util.Arrays;
 public class SSIM {
 
     static double L, C1, C2;
-    static double K1 = 0.01, K2 = 0.03;
+    static double K1 = 0.01, K2 = 0.03, epsilon = 0;
 
     public static double ssim(Dataset refImage, Dataset testImage, OpService opService) {
         double mean_signal = ((DoubleType) opService.run("mean", refImage)).getRealDouble();
@@ -49,7 +49,7 @@ public class SSIM {
         return sum / (img1.size() - 1);
     }
 
-    private static double[] ssimComponents(Dataset refImage, Dataset testImage, int window_size, int x, int y){
+    private static double[] ssimComponents(Dataset refImage, Dataset testImage, int window_size, int x, int y, boolean... flags){
         final int center = window_size / 2;
         final double[][] weights = Helpers.generateGaussianKernel(window_size, 1.5);
         double mu_s = 0.0, mu_t = 0.0;
@@ -72,13 +72,19 @@ public class SSIM {
                 double ps = refImg.get().getRealDouble();
                 double pt = testImg.get().getRealDouble();
                 double w = weights[j + center][i + center];
+                if(flags.length != 0) w = 1.0;
 
                 mu_s += w * ps;
                 mu_t += w * pt;
             }
         }
 
-        // other weighted local statistics
+        if(flags.length != 0) {
+            mu_s /= (window_size * window_size);
+            mu_t /= (window_size * window_size);
+        }
+
+        // other weighted local statistics using means for calculation
         for (int j = -center; j <= center; j++) {
             for (int i = -center; i <= center; i++) {
                 int xx = mirror(x + i, (int) width);
@@ -90,6 +96,7 @@ public class SSIM {
                 double ps = refImg.get().getRealDouble();
                 double pt = testImg.get().getRealDouble();
                 double w = weights[j + center][i + center];
+                if(flags.length != 0) w = 1.0;
 
                 sigma_s_2 += w * Math.pow(ps - mu_s, 2);
                 sigma_t_2 += w * Math.pow(pt - mu_t, 2);
@@ -97,10 +104,15 @@ public class SSIM {
             }
         }
 
-        double l = (2 * mu_s * mu_t + C1) / (mu_s * mu_s + mu_t * mu_t + C1);
-        double c = (2 * Math.sqrt(sigma_s_2 * sigma_t_2) + C2) / (sigma_s_2 + sigma_t_2 + C2);
-        double s = (2 * sigma_st + C2) / (2 * Math.sqrt(sigma_s_2 * sigma_t_2) + C2);
-//        if (s < 0) s = 1e-6;
+        if(flags.length != 0) {
+            sigma_s_2 /= (window_size * window_size);
+            sigma_t_2 /= (window_size * window_size);
+            sigma_st /= (window_size * window_size);
+        }
+
+        double l = (2 * mu_s * mu_t + C1) / (mu_s * mu_s + mu_t * mu_t + C1 + epsilon);
+        double c = (2 * Math.sqrt(sigma_s_2 * sigma_t_2) + C2) / (sigma_s_2 + sigma_t_2 + C2 + epsilon);
+        double s = (2 * sigma_st + C2) / (2 * Math.sqrt(sigma_s_2 * sigma_t_2) + C2 + epsilon);
 
         return new double[]{l, c, Math.abs(s)};
     }
@@ -119,6 +131,27 @@ public class SSIM {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 double[] components = ssimComponents(refImage, testImage, window, x, y);
+                double ssim = components[0] * components[1] * components[2];
+                summedLocalSSIMs += ssim;
+            }
+        }
+
+        return summedLocalSSIMs / (width * height);
+    }
+
+    public static double q_index(Dataset refImage, Dataset testImage) {
+        C1 = 0;
+        C2 = 0;
+        epsilon = 1e-8; // to maintain stability instead of C1, C2
+        final int window = 8;
+        double summedLocalSSIMs = 0.0;
+
+        long width = refImage.dimension(0);
+        long height = refImage.dimension(1);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                double[] components = ssimComponents(refImage, testImage, window, x, y, true);
                 double ssim = components[0] * components[1] * components[2];
                 summedLocalSSIMs += ssim;
             }
