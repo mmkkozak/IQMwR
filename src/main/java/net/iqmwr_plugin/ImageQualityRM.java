@@ -1,8 +1,6 @@
 package net.iqmwr_plugin;
 
-import ij.ImagePlus;
 import net.imagej.DatasetService;
-import net.imagej.ImageJ;
 import net.imagej.Dataset;
 import net.imagej.display.ImageDisplay;
 import net.imagej.display.ImageDisplayService;
@@ -10,7 +8,6 @@ import net.imagej.ops.OpService;
 import net.imagej.table.DefaultResultsTable;
 import net.imagej.table.ResultsTable;
 import org.scijava.command.DynamicCommand;
-import org.scijava.convert.ConvertService;
 import org.scijava.module.ModuleItem;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
@@ -23,10 +20,7 @@ import java.util.*;
 public class ImageQualityRM extends DynamicCommand{
 
     @Parameter
-    private ImageJ ij;
-    @Parameter
     private OpService opService;
-
     @Parameter
     private UIService uiService;
     @Parameter
@@ -39,42 +33,32 @@ public class ImageQualityRM extends DynamicCommand{
     @Parameter(label="Test Image")
     private String testImageName;
 
-    @Parameter(label = "SSIM")
-    private Boolean useSSIM;
-    @Parameter(label = "FSIM")
-    private Boolean useFSIM;
-    @Parameter(label = "MSSIM")
-    private Boolean useMSSIM;
-    @Parameter(label = "UIQI")
-    private Boolean useUIQI;
-    @Parameter(label = "MS-SSIM")
-    private Boolean useMS_SSIM;
-    @Parameter(label = "GMSD")
-    private Boolean useGMSD;
-    @Parameter(label = "SNR1")
-    private Boolean useSNR1;
-    @Parameter(label = "SNR2")
-    private Boolean useSNR2;
-    @Parameter(label = "CNR1")
-    private Boolean useCNR1;
-    @Parameter(label = "CNR2")
-    private Boolean useCNR2;
-    @Parameter(label = "CNR3")
-    private Boolean useCNR3;
-    @Parameter(label = "PSNR")
-    private Boolean usePSNR;
-    @Parameter(label = "RMSE")
-    private Boolean useRMSE;
-    @Parameter(label = "MAE")
-    private Boolean useMAE;
-    @Parameter(label = "MSE")
+    @Parameter(description = "MSE", label = "Mean Squared Error (MSE)")
     private Boolean useMSE;
-
+    @Parameter(description = "RMSE", label = "Root Mean Squared Error (RMSE)")
+    private Boolean useRMSE;
+    @Parameter(description = "MAE", label = "Mean Absolute Error (MAE)")
+    private Boolean useMAE;
+    @Parameter(description = "SNR", label = "Signal-to-Noise Ratio (SNR)")
+    private Boolean useSNR;
+    @Parameter(description = "CNR", label = "Contrast-to-Noise Ratio (CNR)")
+    private Boolean useCNR;
+    @Parameter(description = "PSNR", label = "Peak Signal-to-Noise Ratio (PSNR)")
+    private Boolean usePSNR;
+    @Parameter(description = "SSIM", label = "Structural Similarity Index Measure (SSIM)")
+    private Boolean useSSIM;
+    @Parameter(description = "MSSIM", label = "Mean Structural Similarity Index Measure (MSSIM)")
+    private Boolean useMSSIM;
+    @Parameter(description = "UIQI", label = "Universal Image Quality Index (UIQI)")
+    private Boolean useUIQI;
+    @Parameter(description = "MS-SSIM", label = "Multi-scale Structural Similarity Index Measure (MS-SSIM)")
+    private Boolean useMS_SSIM;
+    @Parameter(description = "FSIM", label = "Feature Similarity Index Matrix (FSIM)")
+    private Boolean useFSIM;
+    @Parameter(description = "GMSD", label = "Gradient Magnitude Similarity Deviation (GMSD)")
+    private Boolean useGMSD;
     final private List<MutableModuleItem<Boolean>> checkboxes = new ArrayList<>();
     final private Map<String, Boolean> selectedMetrics = new HashMap<>();
-
-    @Parameter
-    private ConvertService convertService;
 
     @Override
     public void initialize() {
@@ -138,7 +122,7 @@ public class ImageQualityRM extends DynamicCommand{
         // retrieving checkboxes values to a dictionary
         for (MutableModuleItem<Boolean> checkbox : checkboxes) {
             if (checkbox.getValue(this)) {
-                selectedMetrics.put(checkbox.getLabel(), true);
+                selectedMetrics.put(checkbox.getDescription(), true);
             }
         }
 
@@ -152,9 +136,17 @@ public class ImageQualityRM extends DynamicCommand{
         ResultsTable table = new DefaultResultsTable();
         table.appendColumns("Measure value");
         // populating the result table
-        for (String metric : selectedMetrics.keySet()) {
-            if (selectedMetrics.get(metric)) {
-                table.appendRow(metric);
+        Map<String, Boolean> sortedMetrics = new TreeMap<>(selectedMetrics);
+        for (String metric : sortedMetrics.keySet()) {
+            if (sortedMetrics.get(metric)) {
+                if(metric.equals("SNR")) {
+                    table.appendRow(metric + " 1");
+                    table.appendRow(metric + " 2");
+                } else if (metric.equals("CNR")) {
+                    table.appendRow(metric + " 1");
+                    table.appendRow(metric + " 2");
+                    table.appendRow(metric + " 3");
+                } else table.appendRow(metric);
                 double val;
                 switch (metric) {
                     case "MAE":
@@ -166,20 +158,16 @@ public class ImageQualityRM extends DynamicCommand{
                     case "RMSE":
                         val = Statistics.rmse(refDataset, testDataset);
                         break;
-                    case "SNR1":
+                    case "SNR":
                         val = SNR.snr1(refDataset, testDataset, opService, datasetService);
-                        break;
-                    case "SNR2":
+                        table.set(0, table.getRowCount()-2, val);
                         val = SNR.snr2(refDataset, testDataset, opService, datasetService);
                         break;
-                        //TODO check why CNRs turn is reversed in the table
-                    case "CNR1":
+                    case "CNR":
                         val = CNR.cnr1(refDataset, testDataset, opService, datasetService);
-                        break;
-                    case "CNR2":
+                        table.set(0, table.getRowCount()-3, val);
                         val = CNR.cnr2(refDataset, testDataset, opService, datasetService);
-                        break;
-                    case "CNR3":
+                        table.set(0, table.getRowCount()-2, val);
                         val = CNR.cnr3(refDataset, testDataset, opService, datasetService);
                         break;
                     case "PSNR":
@@ -212,20 +200,6 @@ public class ImageQualityRM extends DynamicCommand{
 
         String tableName = "Results for: reference = '" + referenceImageName + "', test = '" + testImageName + "'";
         uiService.show(tableName, table);
-
-//        ImagePlus imp1 = convertService.convert(refDataset.getImgPlus(), ImagePlus.class);
-//        ImagePlus imp2 = convertService.convert(testDataset.getImgPlus(), ImagePlus.class);
-//        if (imp1 == null || imp2 == null) {
-//            System.out.println("Błąd: konwersja Dataset -> ImagePlus zwróciła null");
-//            return;
-//        }
-//
-//        if (imp1.getStack() == null || imp2.getStack() == null) {
-//            System.out.println("Błąd: ImagePlus nie ma stacka!");
-//            return;
-//        }
-//        System.out.println(CNR_old.getCNR(imp1, imp2));
-
 
     }
 
