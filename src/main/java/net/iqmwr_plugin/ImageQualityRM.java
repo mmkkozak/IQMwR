@@ -49,6 +49,8 @@ public class ImageQualityRM extends DynamicCommand{
     private Boolean useUIQI;
     @Parameter(label = "MS-SSIM")
     private Boolean useMS_SSIM;
+    @Parameter(label = "GMSD")
+    private Boolean useGMSD;
     @Parameter(label = "SNR1")
     private Boolean useSNR1;
     @Parameter(label = "SNR2")
@@ -197,6 +199,9 @@ public class ImageQualityRM extends DynamicCommand{
                         break;
                     case "FSIM":
                         val = FSIM.fsim(refDataset, testDataset, opService);
+                        break;
+                    case "GMSD":
+                        val = GMSD.gmsd(refDataset, testDataset, opService, datasetService);
                         break;
                     default:
                         val = 0;
