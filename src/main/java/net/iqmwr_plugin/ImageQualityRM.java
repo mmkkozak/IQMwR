@@ -16,7 +16,7 @@ import org.scijava.ui.DialogPrompt;
 import org.scijava.ui.UIService;
 import java.util.*;
 
-@Plugin(type = DynamicCommand.class, menuPath = "Plugins>Image Quality Measures with Reference")
+@Plugin(type = DynamicCommand.class, menuPath = "Plugins>Analyze>Image Quality Measures with Reference")
 public class ImageQualityRM extends DynamicCommand{
 
     @Parameter
