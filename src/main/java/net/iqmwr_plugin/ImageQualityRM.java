@@ -33,29 +33,29 @@ public class ImageQualityRM extends DynamicCommand{
     @Parameter(label="Test Image")
     private String testImageName;
 
-    @Parameter(description = "MSE", label = "Mean Squared Error (MSE)")
+    @Parameter(label = "MSE", description = "Mean Squared Error")
     private Boolean useMSE;
-    @Parameter(description = "RMSE", label = "Root Mean Squared Error (RMSE)")
+    @Parameter(label = "RMSE", description = "Root Mean Squared Error")
     private Boolean useRMSE;
-    @Parameter(description = "MAE", label = "Mean Absolute Error (MAE)")
+    @Parameter(label = "MAE", description = "Mean Absolute Error")
     private Boolean useMAE;
-    @Parameter(description = "SNR", label = "Signal-to-Noise Ratio (SNR)")
+    @Parameter(label = "SNR", description = "Signal-to-Noise Ratio")
     private Boolean useSNR;
-    @Parameter(description = "CNR", label = "Contrast-to-Noise Ratio (CNR)")
+    @Parameter(label = "CNR", description = "Contrast-to-Noise Ratio")
     private Boolean useCNR;
-    @Parameter(description = "PSNR", label = "Peak Signal-to-Noise Ratio (PSNR)")
+    @Parameter(label = "PSNR", description = "Peak Signal-to-Noise Ratio")
     private Boolean usePSNR;
-    @Parameter(description = "SSIM", label = "Structural Similarity Index Measure (SSIM)")
+    @Parameter(label = "SSIM", description = "Structural Similarity Index Measure")
     private Boolean useSSIM;
-    @Parameter(description = "MSSIM", label = "Mean Structural Similarity Index Measure (MSSIM)")
+    @Parameter(label = "MSSIM", description = "Mean Structural Similarity Index Measure")
     private Boolean useMSSIM;
-    @Parameter(description = "UIQI", label = "Universal Image Quality Index (UIQI)")
+    @Parameter(label = "UIQI", description = "Universal Image Quality Index")
     private Boolean useUIQI;
-    @Parameter(description = "MS-SSIM", label = "Multi-scale Structural Similarity Index Measure (MS-SSIM)")
+    @Parameter(label = "MS-SSIM", description = "Multi-scale Structural Similarity Index Measure")
     private Boolean useMS_SSIM;
-    @Parameter(description = "FSIM", label = "Feature Similarity Index Matrix (FSIM)")
+    @Parameter(label = "FSIM", description = "Feature Similarity Index Matrix")
     private Boolean useFSIM;
-    @Parameter(description = "GMSD", label = "Gradient Magnitude Similarity Deviation (GMSD)")
+    @Parameter(label = "GMSD", description = "Gradient Magnitude Similarity Deviation")
     private Boolean useGMSD;
     final private List<MutableModuleItem<Boolean>> checkboxes = new ArrayList<>();
     final private Map<String, Boolean> selectedMetrics = new HashMap<>();
@@ -122,7 +122,7 @@ public class ImageQualityRM extends DynamicCommand{
         // retrieving checkboxes values to a dictionary
         for (MutableModuleItem<Boolean> checkbox : checkboxes) {
             if (checkbox.getValue(this)) {
-                selectedMetrics.put(checkbox.getDescription(), true);
+                selectedMetrics.put(checkbox.getLabel(), true);
             }
         }
 
