@@ -14,6 +14,26 @@
     <groupId>net.iqmwr_plugin</groupId>
     <artifactId>iqmwr</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>IQMWR</name>
+    <description>Plugin for ImageJ2 implementing 12 Image Quality Measures with Reference for grayscale images:
+        MSE, RMSE, MAE, SNR, CNR, PSNR, SSIM, MSSIM, UIQI, MS-SSIM, FSIM and GMSD.</description>
+    <url>https://github.com/mmkkozak/IQMwR</url>
+    <inceptionYear>2025</inceptionYear>
+
+    <organization>
+        <name>AGH University of Science and Technology</name>
+        <url>https://www.agh.edu.pl/</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <developers>
         <developer>
@@ -22,10 +42,30 @@
         </developer>
     </developers>
 
+    <contributors>
+        <contributor>
+            <name>Marcelina Mzyk</name>
+        </contributor>
+    </contributors>
+
+    <mailingLists>
+        <mailingList>
+            <name>Image.sc Forum</name>
+            <archive>https://forum.image.sc/</archive>
+        </mailingList>
+    </mailingLists>
+
     <scm>
         <tag>HEAD</tag>
         <url>https://github.com/mmkkozak/IQMwR/</url>
     </scm>
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>http://github.com/mmkkozak/IQMwR/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <system>None</system>
+    </ciManagement>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -33,6 +73,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <main-class>net.iqmwr_plugin.ImageQualityRM</main-class>
         <package-name>net.iqmwr_plugin</package-name>
+        <license.licenseName>MIT License</license.licenseName>
+        <license.copyrightOwners>Michalina Kozak</license.copyrightOwners>
     </properties>
 
     <repositories>
@@ -43,10 +85,16 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.2</version>
+        </dependency>
         <!-- ImageJ dependencies -->
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>imagej</artifactId>
+            <version>2.9.0</version>
         </dependency>
 
         <!-- Test dependencies -->
