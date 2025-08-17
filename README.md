@@ -28,7 +28,9 @@ In case you want to see the full measure name, you can hover over the checkbox l
 After confirming choices, a few seconds may pass until the result table appears.
 <br></br>
 <img height="350" alt="image" align="center" src="https://github.com/user-attachments/assets/e577e95e-c785-4531-ad6f-3cfabdddaa34" />
-<br></br>
+
+<br>A legacy results table was added in verion 1.1.0 for ImageJ Macro simplified usage.</br>
+
 <b>Saving the results</b>
 
 You can select all the table fields, copy and paste e.g. to a spreadsheet **or** choose the result table window, than in the ImageJ menu bar "File > Export > Table..." and save it as a .csv file.
