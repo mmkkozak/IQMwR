@@ -6,7 +6,6 @@ import net.imagej.display.ImageDisplay;
 import net.imagej.display.ImageDisplayService;
 import net.imagej.ops.OpService;
 import net.imagej.table.DefaultResultsTable;
-import net.imagej.table.ResultsTable;
 import org.scijava.command.DynamicCommand;
 import org.scijava.module.ModuleItem;
 import org.scijava.module.MutableModuleItem;
@@ -15,6 +14,7 @@ import org.scijava.plugin.Plugin;
 import org.scijava.ui.DialogPrompt;
 import org.scijava.ui.UIService;
 import java.util.*;
+import ij.measure.ResultsTable;
 
 @Plugin(type = DynamicCommand.class, menuPath = "Plugins>Analyze>Image Quality Measures with Reference")
 public class ImageQualityRM extends DynamicCommand{
@@ -133,8 +133,15 @@ public class ImageQualityRM extends DynamicCommand{
         }
 
         // preparing the result table
-        ResultsTable table = new DefaultResultsTable();
+        DefaultResultsTable table = new DefaultResultsTable();
         table.appendColumns("Measure value");
+
+        // creating a legacy table for macros
+        ResultsTable legacyTable = new ResultsTable();
+        legacyTable.incrementCounter();
+        legacyTable.setPrecision(6);
+        legacyTable.addValue("Reference Image", referenceImageName);
+        legacyTable.addValue("Test Image", testImageName);
         // populating the result table
         Map<String, Boolean> sortedMetrics = new TreeMap<>(selectedMetrics);
         for (String metric : sortedMetrics.keySet()) {
@@ -161,13 +168,16 @@ public class ImageQualityRM extends DynamicCommand{
                     case "SNR":
                         val = SNR.snr1(refDataset, testDataset, opService, datasetService);
                         table.set(0, table.getRowCount()-2, val);
+                        legacyTable.addValue(table.getRowHeader(table.getRowCount()-2), val);
                         val = SNR.snr2(refDataset, testDataset, opService, datasetService);
                         break;
                     case "CNR":
                         val = CNR.cnr1(refDataset, testDataset, opService, datasetService);
                         table.set(0, table.getRowCount()-3, val);
+                        legacyTable.addValue(table.getRowHeader(table.getRowCount()-3), val);
                         val = CNR.cnr2(refDataset, testDataset, opService, datasetService);
                         table.set(0, table.getRowCount()-2, val);
+                        legacyTable.addValue(table.getRowHeader(table.getRowCount()-2), val);
                         val = CNR.cnr3(refDataset, testDataset, opService, datasetService);
                         break;
                     case "PSNR":
@@ -195,11 +205,13 @@ public class ImageQualityRM extends DynamicCommand{
                         val = 0;
                 }
                 table.set(0, table.getRowCount()-1, val);
+                legacyTable.addValue(table.getRowHeader(table.getRowCount()-1), val);
             }
         }
 
         String tableName = "Results for: reference = '" + referenceImageName + "', test = '" + testImageName + "'";
         uiService.show(tableName, table);
+        legacyTable.show(tableName);
 
     }
 
