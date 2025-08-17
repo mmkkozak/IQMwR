@@ -6,6 +6,8 @@ MSE, RMSE, MAE, SNR, CNR, PSNR, SSIM, MSSIM, UIQI, MS-SSIM, FSIM and GMSD.
 
 **Installing the plugin**
 
+In case of installing a newer version over a previous release, removing an old .jar file from Fiji.app\plugins\jars folder is required.
+
 1. Download the versioned .jar file, either from master branch or realeses of this repository.
 2. Open ImageJ Fiji. From the menu bar, choose "Plugins > Install". Select the downloaded .jar file and follow the program prompts.
 3. To use the plugin, navigate to "Plugins > Analyze > Image Quality Measures with Reference".
